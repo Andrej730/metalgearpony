@@ -1,0 +1,25 @@
+<html> 
+<head> 
+<title>Example</title> 
+	<script type="text/javascript" src="/js/jquery-2.1.1.min.js"></script>
+</head> 
+<body> 
+<h2>Metal Gear</h2>
+<div id="terminal" style="height:500px;">
+	<div class="inner">Hello</div>
+	<div class="inner">Goodbye</div>
+</div>
+<div id="input-form" style="">
+	<a href="#" onclick="game.interpret('go west')">Go West</a>
+	<a href="#" onclick="game.interpret('go north')">Go North</a>
+	<a href="#" onclick="game.interpret('go east')">Go East</a>
+	<a href="#" onclick="game.interpret('go yourgf')">Go South</a>
+</div>
+<script src="/js/game.js" type="text/javascript"></script>
+<script type="text/javascript">
+	game = new Game();
+</script>
+
+</body> 
+</html>
+
