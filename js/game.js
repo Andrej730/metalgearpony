@@ -13,8 +13,8 @@ function Game() {
 	}
 
 	this.interpret = function(string) {
-	commands = string.toLowerCase().split(' ')
-	this.write('>'+string.toLowerCase(), '#1F9822')
+	commands = string.toLowerCase().split(' ');
+	this.write('>'+string.toLowerCase(), '#1F9822');
 	switch(commands[0]) {
 		case 'go':
 			switch(commands[1]) {
@@ -40,8 +40,17 @@ function Game() {
 			$('#x').text(this.player.x);
 			$('#y').text(this.player.y);
 			break;
+		case 'objects':
+			this.write(this.world.things.length);
+			break;
+		case 'banana':
+			this.world.addThing(commands[1], commands[2], "Banana");
+			break;
+		case 'map':
+			this.world.showMap();
+			break;
 		default:
-			this.write('I dont know how to ' + commands[0] + '.')
+			this.write('I dont know how to ' + commands[0] + '.');
 		}
 	}
 
@@ -58,9 +67,10 @@ function Player(game, x, y){
 	this.y = y;
 }
 
-function Thing(world, x, y, name) {
+function Thing(world, x, y, id, name) {
 	this.x = x;
 	this.y = y;
+	this.id = id;
 	this.name = name;
 }
 
@@ -73,6 +83,7 @@ function World(game) {
 				[0, 0, 0, 0, 0, 0, 0, 0],
 				[0, 0, 0, 0, 0, 0, 0, 0]];
 
+
 	this.things = new Array();
 	
 	this.showMap = function() {
@@ -82,13 +93,14 @@ function World(game) {
 	}
 
 	this.addThing = function(x, y, name) {
-		this.things[name] = new Thing(this, x, y, name);
+		this.things.push(new Thing(this, x, y, this.things.length, name));
 		game.log(name+" spawned at " + x+"; "+y);
 		this.map[y][x] = 2;
 		
 	}
 
 	this.addThing(5, 0, "Banana");
+	this.addThing(5, 2, "Banana");
 	this.showMap();
 	game.log("Map initiated");
 }
