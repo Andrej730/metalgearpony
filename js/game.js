@@ -1,6 +1,6 @@
 function Game() {
 	this.player = new Player(0,0);
-	this.world = new World(this);
+	//this.world = new World(this);
 
 	var write = function(string, color) {
 		//green - 1F9822, red - C71F0B, yellow - D4C518, blue - 0C61B8
