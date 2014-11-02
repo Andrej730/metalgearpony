@@ -49,6 +49,14 @@ function Game() {
 		case 'map':
 			this.world.showMap();
 			break;
+		case 'help':
+			this.write('На данный момент есть команды:', '#D4C518');
+			this.write('- go (north, south, east, west) - идти куда-то там;', '#D4C518');
+			this.write('- objects - вывести количество заспавненных на данный момент объектов;', '#D4C518');
+			this.write('- banana x y - заспавнить банан в координатах (x; y) - например "banana 3 0" заспавнит в координатах (3;0). Логично, блядь. И да, спавнится банан. Бесполезный и беспощадный;', '#D4C518');
+			this.write('- map - показать карту;', '#D4C518');
+			this.write('- help - показать эту справку.', '#D4C518');
+			break;
 		default:
 			this.write('I dont know how to ' + commands[0] + '.');
 		}
