@@ -55,21 +55,3 @@ function Player(game, x, y) {
 		alert('i am exist');
 	}
 }
-
-function Object(game, name, x, y, use, think, afteruse) {
-	this.name = name;
-	this.x = x;
-	this.y = y;
-	game.showMap();
-}
-
-function World(game) {
-	this.map = [[0, 0, 1, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0]];
-	obj = new Object(this, 6, 0);
-	this.showMap = function() {
-		alert(this.map[0]);
-	}
-	this.addObject = function (obj) {
-		this.map[obj.y][obj.x] = 1;
-	}
-}
