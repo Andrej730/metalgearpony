@@ -1,5 +1,7 @@
 function Game() {
 	this.player = new Player(0,0);
+	this.world = new World(this);
+
 	var write = function(string, color) {
 		//green - 1F9822, red - C71F0B, yellow - D4C518, blue - 0C61B8
 		color = typeof color !== 'undefined' ? color : "#FFF";
@@ -45,11 +47,29 @@ function Game() {
 	}
 }
 
-function Player(x, y) {
+function Player(game, x, y) {
 	this.x = x;
 	this.y = y;
 
 	this.getInfo = function() {
 		alert('i am exist');
+	}
+}
+
+function Object(game, name, x, y, use, think, afteruse) {
+	this.name = name;
+	this.x = x;
+	this.y = y;
+	game.showMap();
+}
+
+function World(game) {
+	this.map = [[0, 0, 1, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0]];
+	obj = new Object(this, 6, 0);
+	this.showMap = function() {
+		alert(this.map[0]);
+	}
+	this.addObject = function (obj) {
+		this.map[obj.y][obj.x] = 1;
 	}
 }
