@@ -41,7 +41,7 @@ function Game() {
 			$('#y').text(this.player.y);
 			break;
 		case 'objects':
-			this.write(this.world.things.length);
+			this.write(this.world.things.length-this.world.unusedId.length);
 			break;
 		case 'banana':
 			this.world.addThing(commands[1], commands[2], "Banana");
@@ -49,14 +49,34 @@ function Game() {
 		case 'map':
 			this.world.showMap();
 			break;
+		case 'delete':
+			this.world.removeThing(commands[1]);
+			this.write('Объект #'+commands[1]+' удалён.', '#C71F0B');
+			break;
 		case 'help':
 			this.write('На данный момент есть команды:', '#D4C518');
 			this.write('- go (north, south, east, west) - идти куда-то там;', '#D4C518');
 			this.write('- objects - вывести количество заспавненных на данный момент объектов;', '#D4C518');
 			this.write('- banana x y - заспавнить банан в координатах (x; y) - например "banana 3 0" заспавнит в координатах (3;0). Логично, блядь. И да, спавнится банан. Бесполезный и беспощадный;', '#D4C518');
 			this.write('- map - показать карту;', '#D4C518');
+			this.write('- delete id - удалить объект с определённым id;', '#D4C518');
+			this.write('- look around - осмотреться', '#D4C518');
 			this.write('- help - показать эту справку.', '#D4C518');
 			break;
+		case 'look':
+			if (commands[1] == "around") {
+				if (this.world.itemMap[this.player.y][this.player.x]){
+					var that = this;
+					this.write('Неподалёку есть: ' + this.world.itemMap[this.player.y][this.player.x].map(function(id) {
+						return that.world.things[id].name;
+					}));
+				}
+				else {
+					this.write('Ничего примечательного.')
+				}
+
+				break;
+			}
 		default:
 			this.write('I dont know how to ' + commands[0] + '.');
 		}
@@ -67,12 +87,13 @@ function Game() {
 	}
 
 	this.world = new World(this);
-	this.player = new Player(this, 0, 0);
+	this.player = new Player(this, 5, 0);
 }
 
 function Player(game, x, y){
 	this.x = x;
 	this.y = y;
+	this.inventory = new Array();
 }
 
 function Thing(world, x, y, id, name) {
@@ -91,9 +112,10 @@ function World(game) {
 				[0, 0, 0, 0, 0, 0, 0, 0],
 				[0, 0, 0, 0, 0, 0, 0, 0]];
 
-
+	this.itemMap = new Array();
 	this.things = new Array();
-	
+
+	this.unusedId = new Array();
 	this.showMap = function() {
 		this.map.forEach(function(arg) {
 			game.write(arg);
@@ -101,10 +123,33 @@ function World(game) {
 	}
 
 	this.addThing = function(x, y, name) {
-		this.things.push(new Thing(this, x, y, this.things.length, name));
+		if (this.unusedId.length) {
+			var id = this.unusedId[0];
+			this.unusedId.splice(0,1);
+		} else {
+			var id = this.things.length;
+		}
+		this.things[id] = new Thing(this, x, y, id, name);
 		game.log(name+" spawned at " + x+"; "+y);
+		if (!this.itemMap[y]) {
+			this.itemMap[y] = new Array();
+		}
+		if (!this.itemMap[y][x]) {
+			this.itemMap[y][x] = new Array();
+		}
+		this.itemMap[y][x].push(id);
 		this.map[y][x] = 2;
 		
+	}
+
+	this.removeFromMap = function(id) {
+		//pass
+	}
+	this.removeThing = function (id) {
+		if (this.things[id]) {
+			delete this.things[id];
+			this.unusedId.push(id); 
+		}
 	}
 
 	this.addThing(5, 0, "Banana");
