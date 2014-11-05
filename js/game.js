@@ -17,7 +17,6 @@ function Game() {
 		case 'go':
 			switch(commands[1]) {
 				case 'west':
-
 					if (this.player.move(this.player.x-1, this.player.y)){
 						this.write('Going west.');
 						this.player.x -= 1;
@@ -53,9 +52,9 @@ function Game() {
 			break;
 		case 'banana':
 			if (typeof(commands[1]) !== 'number' || typeof(commands[2]) !== 'number') {
-				this.world.addThing('None', this.player.x, this.player.y, 1, "Banana", 'Клонированный банан.');
+				this.world.addThing('banana', this.player.x, this.player.y, 1, "Banana", 'Клонированный банан.');
 			} else {
-				this.world.addThing('None', commands[1], commands[2], 1, "Banana", 'Банан у вас под ногами.');
+				this.world.addThing('banana', commands[1], commands[2], 1, "Banana", 'Банан у вас под ногами.');
 			}	
 			break;
 		case 'map':
@@ -115,7 +114,6 @@ function Game() {
 			if (commands[1] == "around") {
 				//alert(this.world.getItemsnearPlayer('id'));
 				if (this.world.itemMap[this.player.y] && this.world.itemMap[this.player.y][this.player.x]){
-					
 					this.write('Неподалёку есть: ' + this.world.getItemsnearPlayer('unames').join(', ') + '.');
 				}
 				else {
@@ -146,15 +144,14 @@ function Player(game, x, y){
 	this.gameOfLife = new Array();
 
 	this.dead = function() {
-		if (this.gameOfLife['Death'])
-			return false;
-		return true;
+		if (false)
+			return true;
+		return false;
 	}
 
 	this.move = function(direction) {
-		if (this.dead)
-			game.write('Вы мертвы.', '#C71F0B');
-			return false;
+		if (this.gameOfLife['Death'])
+			alert(this.gameOfLife['Death']);
 		return true;
 	}
 
@@ -176,8 +173,6 @@ function Player(game, x, y){
 	this.use = function(id) {
 		game.world.things[id].use();
 	}
-
-
 }
 
 function Thing(args) {
@@ -219,7 +214,6 @@ function ThingClasses(game, thingClass, world, x, y, id, quantity, name, thought
 
 				if (game.player.hp < 10)
 					game.player.hp += 1;
-				alert(this.name);
 			}
 			return [world, x, y, id, quantity, name, thought, use];
 	}
