@@ -17,20 +17,30 @@ function Game() {
 		case 'go':
 			switch(commands[1]) {
 				case 'west':
-					this.write('Going west.');
-					this.player.x -= 1;
+
+					if (this.player.move(this.player.x-1, this.player.y)){
+						this.write('Going west.');
+						this.player.x -= 1;
+					}
 					break;
 				case 'north':
-					this.write('Going north.');
-					this.player.y += 1;
+					if (this.player.move(this.player.x, this.player.y+1)) {
+						this.write('Going north.');
+						this.player.y += 1;
+					}
 					break;
 				case 'east':
-					this.write('Going east.');
-					this.player.x += 1;
+					if (this.player.move(this.player.x+1, this.player.y)) {
+						this.write('Going east.');
+						this.player.x += 1;
+					}
 					break;
 				case 'south':
-					this.write('Going south.');
-					this.player.y -= 1;
+					
+					if (this.player.move(this.player.x, this.player.y-1)) {
+						this.write('Going south.');
+						this.player.y -= 1;
+					}
 					break;
 				default:
 					this.write('There is no such thing as ' + commands[1] + '.');
@@ -43,9 +53,9 @@ function Game() {
 			break;
 		case 'banana':
 			if (typeof(commands[1]) !== 'number' || typeof(commands[2]) !== 'number') {
-				this.world.addThing(this.player.x, this.player.y, "Banana", 'Клонированный банан.');
+				this.world.addThing('None', this.player.x, this.player.y, 1, "Banana", 'Клонированный банан.');
 			} else {
-				this.world.addThing(commands[1], commands[2], "Banana", 'Банан у вас под ногами.');
+				this.world.addThing('None', commands[1], commands[2], 1, "Banana", 'Банан у вас под ногами.');
 			}	
 			break;
 		case 'map':
@@ -57,21 +67,37 @@ function Game() {
 			break;
 		case 'help':
 			this.write('На данный момент есть команды:', '#D4C518');
-			this.write('- go (north, south, east, west) - идти куда-то там;', '#D4C518');
+			this.write('- go [north/south/east/west] - идти куда-то там;', '#D4C518');
 			this.write('- objects - вывести количество заспавненных на данный момент объектов;', '#D4C518');
-			this.write('- banana x y - заспавнить банан в координатах (x; y) - например "banana 3 0" заспавнит в координатах (3;0). Логично, блядь. И да, спавнится банан. Бесполезный и беспощадный;', '#D4C518');
+			this.write('- banana [x] [y] - заспавнить банан в координатах (x; y) - например "banana 3 0" заспавнит в координатах (3;0). Логично, блядь. И да, спавнится банан. Бесполезный и беспощадный;', '#D4C518');
 			this.write('- map - показать карту;', '#D4C518');
-			this.write('- delete id - удалить объект с определённым id;', '#D4C518');
-			this.write('- look around - осмотреться', '#D4C518');
+			this.write('- delete [id] - удалить объект с определённым id;', '#D4C518');
+			this.write('- look around - осмотреться;', '#D4C518');
+			this.write('- take [что-то там] - взять что-то там к себе в инвентарь;', '#D4C518');
+			this.write('- use [что-то там] - использовать что-то там;', '#D4C518');
+			this.write('- think about [что-то там] - думать о чём-то там;', '#D4C518');
+			this.write('- hp - вывести хпшечку;', '#D4C518');
 			this.write('- help - показать эту справку.', '#D4C518');
 			break;
 		case 'take':
-			if (this.world.getItemsnearPlayer('lcnames').indexOf(commands[1]) != -1) {
+			if (this.world.getItemsnearPlayer('id') && this.world.getItemsnearPlayer('lcnames').indexOf(commands[1]) != -1) {
 				var id = this.world.getItemsnearPlayer('id')[this.world.getItemsnearPlayer('lcnames').indexOf(commands[1])];
 				this.player.take(id);
 			}
 			else {
 				this.write('Вы не можете это взять.');
+			}
+			break;
+		case 'hp':
+			this.write(this.player.hp);
+			break;
+		case 'use':
+			if (this.world.getItemsnearPlayer('id') && this.world.getItemsnearPlayer('lcnames').indexOf(commands[1]) != -1) {
+				var id = this.world.getItemsnearPlayer('id')[this.world.getItemsnearPlayer('lcnames').indexOf(commands[1])];
+				this.player.use(id);
+			}
+			else {
+				this.write('Это нельзя использовать.');
 			}
 			break;
 		case 'think':
@@ -87,13 +113,14 @@ function Game() {
 			}
 		case 'look':
 			if (commands[1] == "around") {
+				//alert(this.world.getItemsnearPlayer('id'));
 				if (this.world.itemMap[this.player.y] && this.world.itemMap[this.player.y][this.player.x]){
+					
 					this.write('Неподалёку есть: ' + this.world.getItemsnearPlayer('unames').join(', ') + '.');
 				}
 				else {
 					this.write('Ничего примечательного.')
 				}
-
 				break;
 			}
 		default:
@@ -112,25 +139,92 @@ function Game() {
 function Player(game, x, y){
 	this.x = x;
 	this.y = y;
+	this.hp = 9;
+
 	this.inventory = new Array();
+
+	this.gameOfLife = new Array();
+
+	this.dead = function() {
+		if (this.gameOfLife['Death'])
+			return false;
+		return true;
+	}
+
+	this.move = function(direction) {
+		if (this.dead)
+			game.write('Вы мертвы.', '#C71F0B');
+			return false;
+		return true;
+	}
+
+	this.die = function(id) {
+		game.write('Вы мертвы.', '#C71F0B');
+		this.hp = 0;
+		this.gameOfLife['Death'] = true;
+	}
+
 	this.take = function(id) {
 		this.inventory.push(id);
 		game.world.removeFromMap(id);
 	}
 
 	this.think = function(id) {
-		game.write('.. ' + game.world.things[id].thought + '..');
+		game.write('..' + game.world.things[id].thought + '..');
 	}
 
+	this.use = function(id) {
+		game.world.things[id].use();
+	}
+
+
 }
 
-function Thing(world, x, y, id, name, thought) {
-	this.x = x;
-	this.y = y;
-	this.id = id;
-	this.name = name;
-	this.thought = thought;
+function Thing(args) {
+	//world[0], x[1], y[2], id[3], quanity[4], name[5], thought[6], use[7]
+	this.world = args[0];
+	this.x = args[1];
+	this.y = args[2];
+	this.id = args[3];
+	this.quantity = args[4]
+	this.name = args[5];
+	this.thought = args[6];
+	this.use = args[7];
 }
+
+function ThingClasses(game, thingClass, world, x, y, id, quantity, name, thought) {
+	//Banana
+	switch (thingClass){
+		case 'banana':
+			if (name)
+				var name = name;
+			else
+				var name = 'Banana';
+
+			if (quantity)
+				var quantity = quantity;
+			else
+				var quantity = 1;
+
+			if (thought)
+				var thought = thought;
+			else 
+				var thought = 'Duplicated банан. Ходит поверье, что восполняет здоровье... Но если обожраться - тебе пиздец.';
+
+			var use = function() {
+				if (!game.player.gameOfLife['banana'])
+					game.player.gameOfLife['banana'] = 1;
+				else 
+					game.player.die();
+
+				if (game.player.hp < 10)
+					game.player.hp += 1;
+				alert(this.name);
+			}
+			return [world, x, y, id, quantity, name, thought, use];
+	}
+}
+
 
 function World(game) {
 	this.map = [[0, 0, 1, 0, 0, 0, 0, 0], 
@@ -170,15 +264,21 @@ function World(game) {
 		}
 	}
 
-	this.addThing = function(x, y, name, thought) {
+	this.addThing = function(thingClass, x, y, quantity, name, thought) {
 		if (this.unusedId.length) {
 			var id = this.unusedId[0];
 			this.unusedId.splice(0,1);
 		} else {
 			var id = this.things.length;
 		}
-		this.things[id] = new Thing(this, x, y, id, name, thought);
+		if (thingClass == 'None'){
+			this.things[id] = new Thing([this, x, y, id, quantity, name, thought]);
+		} else {
+			this.things[id] = new Thing(ThingClasses(game, thingClass, this, x, y, id, quantity, name, thought));
+		}
+
 		game.log(name+" spawned at " + x+"; "+y);
+
 		if (!this.itemMap[y]) {
 			this.itemMap[y] = new Array();
 		}
@@ -197,6 +297,7 @@ function World(game) {
 			this.itemMap[this.things[id].y][this.things[id].x] = undefined;
 		}
 	}
+
 	this.removeThing = function (id) {
 		if (this.things[id]) {
 			delete this.things[id];
@@ -204,8 +305,9 @@ function World(game) {
 		}
 	}
 
-	this.addThing(5, 0, "Banana", "Ну, просто банан, заебись ему.");
-	this.addThing(5, 2, "Banana", 'Загадочный банан.');
+	this.addThing('banana', 5, 0, 1, "UsefulBanana");
+	this.addThing('banana', 5, 0, 1, 'UsefulBanana#2');
+	this.addThing('None', 5, 2, 1, "Banana", 'Загадочный банан.');
 	this.showMap();
 	game.log("Map initiated");
 }
