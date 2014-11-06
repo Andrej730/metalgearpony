@@ -144,14 +144,16 @@ function Player(game, x, y){
 	this.gameOfLife = new Array();
 
 	this.dead = function() {
-		if (false)
+		if (this.gameOfLife['Death'])
 			return true;
 		return false;
 	}
 
 	this.move = function(direction) {
-		if (this.gameOfLife['Death'])
-			alert(this.gameOfLife['Death']);
+		if (this.dead){
+			game.write('Вы мертвы.', '#C71F0B');
+			return false;
+		}
 		return true;
 	}
 
